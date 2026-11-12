@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<!--
+  DEMO: SCHLECHTE ACCESSIBILITY (absichtlich fehlerhaft!)
+  =====================================================
+  Prüfpunkte für die Chrome-DevTools (F12):
+
+  1) Elements → Tab "Accessibility" (rechts neben Styles)
+     - "Enable full-page accessibility tree" aktivieren (Symbol oben im Elements-Panel)
+     - Die "Überschriften" sind nur <div>s → Rolle "generic", keine heading-Rolle
+     - Keine Landmarks (banner, navigation, main, contentinfo)
+     - Navigation besteht aus <span>s → keine Links, nicht per Tab erreichbar
+     - Bild ohne alt → Name leer; Deko-Bild mit Dateiname als alt
+     - "Absenden" und FAQ-Fragen sind <div>s → keine Rolle "button", kein Zustand
+     - Eingabefeld hat nur placeholder → kein zuverlässiger Name
+     - Tabelle ohne <th> → keine Spalten-/Zeilenüberschriften
+
+  2) Kontrast
+     - Element-Picker (Strg+Umschalt+C) über Texte fahren → Warnsymbol beim Kontrast
+     - Styles → Farbquadrat bei "color" anklicken → Kontrastverhältnis
+     - Weitere Tools → CSS Overview → Colors → "Low contrast text"
+
+  3) Lighthouse → Kategorie "Accessibility" → viele Fehler
+  4) Tastatur: Tab-Taste → Fokus ist unsichtbar (outline: none)
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Seite</title>
+  <style>
+    * { box-sizing: border-box; }
+    *:focus { outline: none; }               /* Fokus unsichtbar */
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #aaaaaa;                         /* ca. 2,3:1 auf Weiß */
+      background: #ffffff;
+    }
+    .kopf { background: #f4f4f4; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-weight: 700; font-size: 18px; color: #c9c9c9; }
+    .menue span { margin-left: 16px; color: #9ec5fe; cursor: pointer; }
+    .inhalt { max-width: 760px; margin: 0 auto; padding: 24px; }
+    .h1 { font-size: 30px; font-weight: 700; color: #b5b5b5; margin: 8px 0 12px; }
+    .h2 { font-size: 21px; font-weight: 700; color: #b5b5b5; margin: 32px 0 8px; }
+    .klein { font-size: 12px; color: #cccccc; }
+    a { color: #9ec5fe; text-decoration: none; }
+    .bild { width: 100%; height: auto; border-radius: 8px; margin: 12px 0; display: block; }
+    .tabelle { width: 100%; border-collapse: collapse; margin: 8px 0; }
+    .tabelle td { border-bottom: 1px solid #eee; padding: 8px; vertical-align: top; }
+    .tabelle tr:first-child td { font-weight: 700; color: #bbbbbb; }
+    .faq-frage { padding: 12px; background: #fafafa; border: 1px solid #eee; margin-top: 8px; cursor: pointer; color: #b0b0b0; }
+    .faq-antwort { display: none; padding: 12px; border: 1px solid #eee; border-top: 0; }
+    .feld { width: 100%; max-width: 360px; padding: 10px; border: 1px solid #eeeeee; font-size: 14px; color: #aaaaaa; }
+    .feld.fehler { border-color: #ff9a9a; }   /* Fehler nur über Farbe */
+    .knopf { display: inline-block; margin-top: 12px; padding: 10px 20px; background: #f5a623; color: #ffffff; border-radius: 6px; cursor: pointer; font-weight: 600; } /* ca. 2:1 */
+    .meldung { margin-top: 12px; color: #9fd9a8; }
+    .fuss { margin-top: 48px; padding: 16px 24px; background: #f4f4f4; }
+  </style>
+</head>
+<body>
+
+  <div class="kopf">
+    <div class="logo">BFSG kompakt</div>
+    <div class="menue">
+      <span onclick="location.href='#wer'">Wer ist betroffen?</span>
+      <span onclick="location.href='#faq'">FAQ</span>
+      <span onclick="location.href='bfsg-gut.html'">Gute Version</span>
+    </div>
+  </div>
+
+  <div class="inhalt">
+    <div class="h1">Das Barrierefreiheitsstärkungsgesetz (BFSG)</div>
+    <div class="klein">Stand: November 2026</div>
+
+    <img class="bild" src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 200'%3E%3Crect width='760' height='200' fill='%23eef4ff'/%3E%3Ccircle cx='120' cy='100' r='60' fill='%23b8cff5'/%3E%3Crect x='220' y='70' width='460' height='16' rx='8' fill='%23c9d8f2'/%3E%3Crect x='220' y='104' width='340' height='16' rx='8' fill='%23c9d8f2'/%3E%3Ctext x='120' y='112' font-size='40' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'%3E%E2%99%BF%3C/text%3E%3C/svg%3E">
+
+    <p>
+      Seit dem 28. Juni 2025 gilt in Deutschland das BFSG. Es setzt die EU-Richtlinie 2019/882
+      (European Accessibility Act) um und verpflichtet erstmals auch private Unternehmen,
+      bestimmte Produkte und Dienstleistungen barrierefrei anzubieten. Mehr Infos <a href="https://www.bundesfachstelle-barrierefreiheit.de">hier</a>.
+    </p>
+
+    <div class="h2" id="wer">Wer ist betroffen?</div>
+    <table class="tabelle">
+      <tr><td>Bereich</td><td>Beispiele</td></tr>
+      <tr><td>Produkte</td><td>Computer, Smartphones, Geldautomaten, Ticketautomaten, E-Book-Reader</td></tr>
+      <tr><td>Dienstleistungen</td><td>Onlineshops, Online-Banking, E-Books, Telekommunikation, Personenbeförderung</td></tr>
+      <tr><td>Ausnahme</td><td>Kleinstunternehmen (unter 10 Beschäftigte und max. 2 Mio. € Umsatz oder Bilanz) bei Dienstleistungen</td></tr>
+    </table>
+
+    <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='760' height='4'%3E%3Crect width='760' height='4' fill='%23eeeeee'/%3E%3C/svg%3E" alt="trenner_final_v2.svg" style="width:100%;height:4px;">
+
+    <div class="h2">Was droht bei Verstößen?</div>
+    <p>
+      Die Marktüberwachung kann Nachbesserung verlangen oder das Angebot untersagen.
+      Zusätzlich sind Bußgelder bis zu 100.000 € möglich. Als technischer Maßstab für
+      Websites gilt in der Praxis die EN 301 549, die auf WCAG 2.1 Stufe AA verweist.
+    </p>
+
+    <div class="h2" id="faq">FAQ</div>
+    <div class="faq-frage" onclick="umschalten(this)">Gilt das BFSG auch für B2B-Angebote? ▾</div>
+    <div class="faq-antwort">Nein. Das Gesetz zielt auf Angebote für Verbraucherinnen und Verbraucher (B2C).</div>
+    <div class="faq-frage" onclick="umschalten(this)">Reicht ein Overlay-Tool? ▾</div>
+    <div class="faq-antwort">Nein. Overlays beheben keine Fehler im Code; Struktur, Semantik und Kontraste müssen stimmen.</div>
+
+    <div class="h2">Checkliste anfordern</div>
+    <input class="feld" id="mail" type="text" placeholder="E-Mail">
+    <br>
+    <div class="knopf" onclick="absenden()">Absenden</div>
+    <div id="ausgabe"></div>
+  </div>
+
+  <div class="fuss">
+    <span class="klein">© 2026 Demo · Impressum · Datenschutz</span>
+  </div>
+
+  <script>
+    function umschalten(el) {
+      var antwort = el.nextElementSibling;
+      antwort.style.display = antwort.style.display === 'block' ? 'none' : 'block';
+    }
+    function absenden() {
+      var feld = document.getElementById('mail');
+      var ausgabe = document.getElementById('ausgabe');
+      ausgabe.innerHTML = '';
+      if (!feld.value.includes('@')) {
+        feld.classList.add('fehler');           // nur rote Umrandung
+        return;
+      }
+      feld.classList.remove('fehler');
+      var m = document.createElement('div');    // erscheint ohne Live-Region
+      m.className = 'meldung';
+      m.textContent = 'Danke! Die Checkliste ist unterwegs.';
+      ausgabe.appendChild(m);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!--
+  DEMO: SUBTILE KONTRASTFEHLER
+  ============================
+  Struktur, Semantik und ARIA sind identisch mit bfsg-gut.html (Accessibility-Tree ist sauber).
+  Nur die Farben sind anders: eine moderne, stimmige Palette, die "gut aussieht",
+  aber an vielen Stellen knapp unter den WCAG-Anforderungen liegt.
+
+  Farbpaare und gemessene Kontrastverhältnisse (WCAG 2.x):
+
+  Element                         Vordergrund  Hintergrund  Verhältnis  Soll   Ergebnis
+  ------------------------------  -----------  -----------  ----------  -----  -------------------------------
+  Fließtext                       #7c7f86      #f4f1ea      3,55 : 1    4,5    durchgefallen
+  Kleintext (Stand, Hinweise)     #8f9198      #f4f1ea      2,79 : 1    4,5    durchgefallen
+  Links                           #2f7fd9      #f4f1ea      3,61 : 1    4,5    durchgefallen
+  Kopfzeile Text                  #ffffff      #0d9488      3,74 : 1    4,5    durchgefallen
+  Hero-Text                       #ffffff      #0ea5e9      2,77 : 1    4,5    durchgefallen
+  Badge "Seit 2025"               #ffffff      #f59e0b      2,15 : 1    4,5    durchgefallen
+  H1 / H2 (groß + fett)           #0d9488      #f4f1ea      3,32 : 1    3,0    BESTANDEN (großer Text!)
+  Tabellen-Zellen                 #7c7f86      #e6f2ef      3,50 : 1    4,5    durchgefallen
+  FAQ-Schalter                    #0d9488      #d5f5ee      3,23 : 1    4,5    durchgefallen (16 px = normaler Text)
+  Button "Checkliste anfordern"   #ffffff      #ea580c      3,56 : 1    4,5    durchgefallen
+  Fehlermeldung                   #ef4444      #f4f1ea      3,34 : 1    4,5    durchgefallen
+  Erfolgsmeldung                  #22c55e      #f4f1ea      2,02 : 1    4,5    durchgefallen
+  Fußzeile (dunkel)               #7b8798      #1e293b      4,01 : 1    4,5    durchgefallen
+  Rahmen Eingabefeld (Nicht-Text) #d6d3cd      #ffffff      1,49 : 1    3,0    durchgefallen (WCAG 1.4.11)
+  Fokusrahmen (Nicht-Text)        #5eead4      #f4f1ea      1,31 : 1    3,0    durchgefallen (WCAG 1.4.11)
+
+  Lehrreich:
+  - Die Überschriften haben dieselbe Farbe wie der FAQ-Schalter, bestehen aber, weil sie groß sind.
+  - Fehler-/Erfolgsfarbe, Feldrand und Fokusrahmen prüfen die meisten automatischen Tools NICHT.
+    Feldrand und Fokus mit dem Farbwähler / der Pipette messen.
+  - Für den Fokusrahmen per Tab fokussieren oder in Styles über ":hov" → ":focus-visible" erzwingen.
+
+  Prüfung in Chrome:
+  - Element-Picker (Strg+Umschalt+C) → Kontrastwert + Warnsymbol im Tooltip
+  - Styles → Farbquadrat bei "color" → Kontrastverhältnis mit AA/AAA-Linien
+  - Weitere Tools → CSS Overview → Colors → "Low contrast text"
+  - Lighthouse → Accessibility: Kontrast ist der einzige Hauptfehler
+  - Rendering → "Emulate vision deficiencies" → z. B. "Blurred vision" oder "Reduced contrast"
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BFSG kompakt – Variante mit subtilen Kontrastfehlern</title>
+  <style>
+    :root {
+      --seite: #f4f1ea;       /* warmes Creme */
+      --text: #7c7f86;        /* 3,55:1 */
+      --text-leise: #8f9198;  /* 2,79:1 */
+      --link: #2f7fd9;        /* 3,61:1 */
+      --marke: #0d9488;       /* Teal: Kopfzeile, Überschriften */
+      --hero: #0ea5e9;        /* Himmelblau */
+      --akzent: #ea580c;      /* Orange */
+      --badge: #f59e0b;       /* Amber */
+      --tabelle: #e6f2ef;
+      --faq: #d5f5ee;
+      --fehler: #ef4444;
+      --erfolg: #22c55e;
+      --feldrand: #d6d3cd;
+      --fokus: #5eead4;
+      --fuss: #1e293b;
+      --fuss-text: #7b8798;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--seite);
+    }
+    :focus-visible { outline: 3px solid var(--fokus); outline-offset: 2px; }
+
+    .skip-link {
+      position: absolute; left: 8px; top: -100px;
+      background: var(--marke); color: #fff; padding: 8px 12px; border-radius: 4px; z-index: 10;
+    }
+    .skip-link:focus { top: 8px; }
+
+    header { background: var(--marke); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-weight: 700; font-size: 1.125rem; color: #fff; text-decoration: none; }
+    nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 16px; flex-wrap: wrap; }
+    header nav a { color: #fff; }
+    a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+
+    .hero { background: var(--hero); color: #fff; padding: 28px 24px; }
+    .hero-inner { max-width: 760px; margin: 0 auto; }
+    .hero p { margin: 0; font-size: 1.05rem; }
+    .badge { display: inline-block; background: var(--badge); color: #fff; font-size: 0.8rem; font-weight: 700; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; }
+
+    main { max-width: 760px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 1.875rem; line-height: 1.25; margin: 8px 0 12px; color: var(--marke); }
+    h2 { font-size: 1.3rem; margin: 32px 0 8px; color: var(--marke); }
+    .klein { font-size: 0.875rem; color: var(--text-leise); }
+    figure { margin: 12px 0; }
+    .bild { width: 100%; height: auto; border-radius: 8px; display: block; }
+    figcaption { font-size: 0.875rem; color: var(--text-leise); margin-top: 4px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 8px 0; background: var(--tabelle); border-radius: 8px; overflow: hidden; }
+    caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+    th, td { border-bottom: 1px solid #fff; padding: 8px; vertical-align: top; text-align: left; }
+    thead th { background: var(--marke); color: #fff; }
+    tbody th { color: var(--text); }
+
+    .faq h3 { margin: 8px 0 0; font-size: 1rem; }
+    .faq button {
+      width: 100%; text-align: left; font: inherit; font-weight: 600; color: var(--marke);
+      background: var(--faq); border: 0; border-radius: 6px; padding: 12px; cursor: pointer;
+      display: flex; justify-content: space-between; gap: 8px;
+    }
+    .faq button[aria-expanded="true"] { border-radius: 6px 6px 0 0; }
+    .faq button[aria-expanded="true"] .pfeil { transform: rotate(180deg); }
+    .faq .antwort { padding: 12px; background: #fff; border-radius: 0 0 6px 6px; }
+
+    label { display: block; font-weight: 600; margin-bottom: 4px; }
+    .hinweis { font-size: 0.875rem; color: var(--text-leise); margin: 0 0 6px; }
+    input {
+      width: 100%; max-width: 360px; padding: 10px; font: inherit; color: var(--text);
+      background: #fff; border: 2px solid var(--feldrand); border-radius: 6px;
+    }
+    input[aria-invalid="true"] { border-color: var(--fehler); }
+    .fehlertext { color: var(--fehler); font-weight: 600; margin: 6px 0 0; }
+    .fehlertext:empty { display: none; }
+    button.senden {
+      margin-top: 12px; padding: 10px 20px; font: inherit; font-weight: 600;
+      background: var(--akzent); color: #fff; border: 0; border-radius: 6px; cursor: pointer;
+    }
+    .status { margin-top: 12px; color: var(--erfolg); font-weight: 600; min-height: 1.6em; }
+
+    footer { margin-top: 48px; padding: 16px 24px; background: var(--fuss); color: var(--fuss-text); }
+    footer a { color: var(--fuss-text); }
+    footer .klein { color: var(--fuss-text); }
+    footer ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 16px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+  <header>
+    <a class="logo" href="#inhalt">BFSG kompakt</a>
+    <nav aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="#wer">Wer ist betroffen?</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="bfsg-gut.html">Gute Version</a></li>
+        <li><a href="bfsg-schlecht.html">Schlechte Version</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <div class="hero-inner">
+      <span class="badge">Seit 2025 in Kraft</span>
+      <p>Barrierefreiheit ist für viele Onlineangebote jetzt Pflicht – das Wichtigste auf einen Blick.</p>
+    </div>
+  </div>
+
+  <main id="inhalt" tabindex="-1">
+    <h1>Das Barrierefreiheitsstärkungsgesetz (BFSG)</h1>
+    <p class="klein">Stand: <time datetime="2026-11">November 2026</time></p>
+
+    <figure>
+      <img class="bild"
+           src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 200'%3E%3Crect width='760' height='200' fill='%23e6f2ef'/%3E%3Ccircle cx='120' cy='100' r='60' fill='%230d9488'/%3E%3Crect x='220' y='70' width='460' height='16' rx='8' fill='%2314b8a6'/%3E%3Crect x='220' y='104' width='340' height='16' rx='8' fill='%2399f6e4'/%3E%3Ctext x='120' y='114' font-size='44' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'%3E%E2%99%BF%3C/text%3E%3C/svg%3E"
+           alt="Symbol für Barrierefreiheit neben einem stilisierten Textdokument">
+      <figcaption>Das BFSG betrifft digitale Produkte und Dienstleistungen für Verbraucher.</figcaption>
+    </figure>
+
+    <p>
+      Seit dem 28. Juni 2025 gilt in Deutschland das BFSG. Es setzt die EU-Richtlinie 2019/882
+      (European Accessibility Act) um und verpflichtet erstmals auch private Unternehmen,
+      bestimmte Produkte und Dienstleistungen barrierefrei anzubieten.
+      Ausführliche Antworten bietet die
+      <a href="https://www.bundesfachstelle-barrierefreiheit.de">FAQ der Bundesfachstelle Barrierefreiheit</a>.
+    </p>
+
+    <h2 id="wer">Wer ist betroffen?</h2>
+    <table>
+      <caption>Anwendungsbereich des BFSG mit Beispielen</caption>
+      <thead>
+        <tr><th scope="col">Bereich</th><th scope="col">Beispiele</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Produkte</th><td>Computer, Smartphones, Geldautomaten, Ticketautomaten, E-Book-Reader</td></tr>
+        <tr><th scope="row">Dienstleistungen</th><td>Onlineshops, Online-Banking, E-Books, Telekommunikation, Personenbeförderung</td></tr>
+        <tr><th scope="row">Ausnahme</th><td>Kleinstunternehmen (unter 10 Beschäftigte und max. 2 Mio. € Umsatz oder Bilanz) bei Dienstleistungen</td></tr>
+      </tbody>
+    </table>
+
+    <h2>Was droht bei Verstößen?</h2>
+    <p>
+      Die Marktüberwachung kann Nachbesserung verlangen oder das Angebot untersagen.
+      Zusätzlich sind Bußgelder bis zu 100.000 € möglich. Als technischer Maßstab für
+      Websites gilt in der Praxis die EN 301 549, die auf WCAG 2.1 Stufe AA verweist.
+    </p>
+
+    <h2 id="faq">FAQ</h2>
+    <div class="faq">
+      <h3>
+        <button type="button" aria-expanded="false" aria-controls="antwort-1">
+          Gilt das BFSG auch für B2B-Angebote?
+          <span class="pfeil" aria-hidden="true">▾</span>
+        </button>
+      </h3>
+      <div class="antwort" id="antwort-1" hidden>
+        Nein. Das Gesetz zielt auf Angebote für Verbraucherinnen und Verbraucher (B2C).
+      </div>
+
+      <h3>
+        <button type="button" aria-expanded="false" aria-controls="antwort-2">
+          Reicht ein Overlay-Tool?
+          <span class="pfeil" aria-hidden="true">▾</span>
+        </button>
+      </h3>
+      <div class="antwort" id="antwort-2" hidden>
+        Nein. Overlays beheben keine Fehler im Code; Struktur, Semantik und Kontraste müssen stimmen.
+      </div>
+    </div>
+
+    <h2 id="checkliste-titel">Checkliste anfordern</h2>
+    <form aria-labelledby="checkliste-titel" novalidate>
+      <label for="mail">E-Mail-Adresse <span aria-hidden="true">*</span></label>
+      <p class="hinweis" id="mail-hinweis">Pflichtfeld. Wir senden Ihnen die Checkliste als PDF.</p>
+      <input id="mail" name="mail" type="email" autocomplete="email" required
+             aria-describedby="mail-hinweis mail-fehler">
+      <p class="fehlertext" id="mail-fehler"></p>
+      <button class="senden" type="submit">Checkliste anfordern</button>
+      <div class="status" role="status"></div>
+    </form>
+  </main>
+
+  <footer>
+    <ul>
+      <li class="klein">© 2026 Demo</li>
+      <li><a href="#">Impressum</a></li>
+      <li><a href="#">Datenschutz</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    document.querySelectorAll('.faq button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var offen = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!offen));
+        document.getElementById(btn.getAttribute('aria-controls')).hidden = offen;
+      });
+    });
+
+    var form = document.querySelector('form');
+    var feld = document.getElementById('mail');
+    var fehler = document.getElementById('mail-fehler');
+    var status = document.querySelector('.status');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      status.textContent = '';
+      if (!feld.value.includes('@')) {
+        feld.setAttribute('aria-invalid', 'true');
+        fehler.textContent = 'Fehler: Bitte geben Sie eine gültige E-Mail-Adresse ein, z. B. name@beispiel.de.';
+        feld.focus();
+        return;
+      }
+      feld.removeAttribute('aria-invalid');
+      fehler.textContent = '';
+      status.textContent = 'Danke! Die Checkliste ist unterwegs.';
+    });
+  </script>
+</body>
+</html>

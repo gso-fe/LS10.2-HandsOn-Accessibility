@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<!--
+  DEMO: OPTIMIERTE ACCESSIBILITY
+  ==============================
+  Prüfpunkte für die Chrome-DevTools (F12) – im Vergleich zu bfsg-schlecht.html:
+
+  1) Elements → Tab "Accessibility"
+     - "Enable full-page accessibility tree" aktivieren
+     - Landmarks: banner, navigation "Hauptnavigation", main, contentinfo
+     - Überschriften: heading level 1 / 2 (sauber verschachtelt)
+     - Navigation: echte Links (Rolle "link") mit sprechendem Namen
+     - Infografik: Rolle "image" mit Name aus alt; Trenner aus dem Baum entfernt (alt="")
+     - FAQ: Rolle "button" mit Zustand expanded: false/true (aria-expanded)
+     - Formular: textbox "E-Mail-Adresse" mit Label, required, bei Fehler invalid: true
+       und Beschreibung aus aria-describedby
+     - Statusmeldung: role="status" (Live-Region, wird von Screenreadern angesagt)
+     - Tabelle: Spaltenkopf (columnheader) und Zeilenkopf (rowheader) per <th scope>
+
+  2) Kontrast
+     - Element-Picker (Strg+Umschalt+C) → alle Texte mit Häkchen (≥ 4,5:1)
+     - CSS Overview → Colors → keine "Low contrast text"-Einträge
+
+  3) Lighthouse → Accessibility → (nahezu) 100
+  4) Tastatur: Tab → "Zum Inhalt springen" erscheint, Fokus ist überall sichtbar
+-->
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BFSG kompakt – Das Barrierefreiheitsstärkungsgesetz erklärt</title>
+  <style>
+    :root {
+      --text: #1f2937;        /* 14,7:1 auf Weiß */
+      --text-leise: #4b5563;  /* 7,6:1 auf Weiß */
+      --link: #0b57d0;        /* 6,3:1 auf Weiß */
+      --akzent: #b45309;      /* Weiß darauf: 5,0:1 */
+      --fehler: #b91c1c;      /* 6,5:1 auf Weiß */
+      --erfolg: #166534;      /* 7,1:1 auf Weiß */
+      --linie: #6b7280;       /* 4,8:1 – auch für Feldränder (≥ 3:1) */
+      --flaeche: #f3f4f6;
+      --fokus: #1d4ed8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+      background: #ffffff;
+    }
+    :focus-visible { outline: 3px solid var(--fokus); outline-offset: 2px; }
+
+    .skip-link {
+      position: absolute; left: 8px; top: -100px;
+      background: var(--text); color: #fff; padding: 8px 12px; border-radius: 4px; z-index: 10;
+    }
+    .skip-link:focus { top: 8px; }
+
+    header { background: var(--flaeche); padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-weight: 700; font-size: 1.125rem; color: var(--text); text-decoration: none; }
+    nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 16px; flex-wrap: wrap; }
+    a { color: var(--link); text-decoration: underline; text-underline-offset: 2px; }
+
+    main { max-width: 760px; margin: 0 auto; padding: 24px; }
+    h1 { font-size: 1.875rem; line-height: 1.25; margin: 8px 0 12px; }
+    h2 { font-size: 1.3rem; margin: 32px 0 8px; }
+    .klein { font-size: 0.875rem; color: var(--text-leise); }
+    figure { margin: 12px 0; }
+    .bild { width: 100%; height: auto; border-radius: 8px; display: block; }
+    figcaption { font-size: 0.875rem; color: var(--text-leise); margin-top: 4px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 8px 0; }
+    caption { text-align: left; font-weight: 600; padding-bottom: 4px; }
+    th, td { border-bottom: 1px solid var(--linie); padding: 8px; vertical-align: top; text-align: left; }
+    thead th { background: var(--flaeche); }
+
+    .faq h3 { margin: 8px 0 0; font-size: 1rem; }
+    .faq button {
+      width: 100%; text-align: left; font: inherit; font-weight: 600; color: var(--text);
+      background: var(--flaeche); border: 1px solid var(--linie); padding: 12px; cursor: pointer;
+      display: flex; justify-content: space-between; gap: 8px;
+    }
+    .faq button[aria-expanded="true"] .pfeil { transform: rotate(180deg); }
+    .faq .antwort { padding: 12px; border: 1px solid var(--linie); border-top: 0; }
+
+    label { display: block; font-weight: 600; margin-bottom: 4px; }
+    .hinweis { font-size: 0.875rem; color: var(--text-leise); margin: 0 0 6px; }
+    input {
+      width: 100%; max-width: 360px; padding: 10px; font: inherit; color: var(--text);
+      border: 2px solid var(--linie); border-radius: 4px;
+    }
+    input[aria-invalid="true"] { border-color: var(--fehler); }
+    .fehlertext { color: var(--fehler); font-weight: 600; margin: 6px 0 0; }
+    .fehlertext:empty { display: none; }
+    button.senden {
+      margin-top: 12px; padding: 10px 20px; font: inherit; font-weight: 600;
+      background: var(--akzent); color: #fff; border: 0; border-radius: 6px; cursor: pointer;
+    }
+    .status { margin-top: 12px; color: var(--erfolg); font-weight: 600; min-height: 1.6em; }
+
+    footer { margin-top: 48px; padding: 16px 24px; background: var(--flaeche); }
+    footer ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 16px; flex-wrap: wrap; }
+  </style>
+</head>
+<body>
+
+  <a class="skip-link" href="#inhalt">Zum Inhalt springen</a>
+
+  <header>
+    <a class="logo" href="#inhalt">BFSG kompakt</a>
+    <nav aria-label="Hauptnavigation">
+      <ul>
+        <li><a href="#wer">Wer ist betroffen?</a></li>
+        <li><a href="#faq">FAQ</a></li>
+        <li><a href="bfsg-schlecht.html">Schlechte Version zum Vergleich</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="inhalt" tabindex="-1">
+    <h1>Das Barrierefreiheitsstärkungsgesetz (BFSG)</h1>
+    <p class="klein">Stand: <time datetime="2026-11">November 2026</time></p>
+
+    <figure>
+      <img class="bild"
+           src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 760 200'%3E%3Crect width='760' height='200' fill='%23eef4ff'/%3E%3Ccircle cx='120' cy='100' r='60' fill='%231d4ed8'/%3E%3Crect x='220' y='70' width='460' height='16' rx='8' fill='%231f2937'/%3E%3Crect x='220' y='104' width='340' height='16' rx='8' fill='%234b5563'/%3E%3Ctext x='120' y='114' font-size='44' text-anchor='middle' fill='%23ffffff' font-family='sans-serif'%3E%E2%99%BF%3C/text%3E%3C/svg%3E"
+           alt="Symbol für Barrierefreiheit neben einem stilisierten Textdokument">
+      <figcaption>Das BFSG betrifft digitale Produkte und Dienstleistungen für Verbraucher.</figcaption>
+    </figure>
+
+    <p>
+      Seit dem 28. Juni 2025 gilt in Deutschland das BFSG. Es setzt die EU-Richtlinie 2019/882
+      (European Accessibility Act) um und verpflichtet erstmals auch private Unternehmen,
+      bestimmte Produkte und Dienstleistungen barrierefrei anzubieten.
+      Ausführliche Antworten bietet die
+      <a href="https://www.bundesfachstelle-barrierefreiheit.de">FAQ der Bundesfachstelle Barrierefreiheit</a>.
+    </p>
+
+    <h2 id="wer">Wer ist betroffen?</h2>
+    <table>
+      <caption>Anwendungsbereich des BFSG mit Beispielen</caption>
+      <thead>
+        <tr><th scope="col">Bereich</th><th scope="col">Beispiele</th></tr>
+      </thead>
+      <tbody>
+        <tr><th scope="row">Produkte</th><td>Computer, Smartphones, Geldautomaten, Ticketautomaten, E-Book-Reader</td></tr>
+        <tr><th scope="row">Dienstleistungen</th><td>Onlineshops, Online-Banking, E-Books, Telekommunikation, Personenbeförderung</td></tr>
+        <tr><th scope="row">Ausnahme</th><td>Kleinstunternehmen (unter 10 Beschäftigte und max. 2 Mio. € Umsatz oder Bilanz) bei Dienstleistungen</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Rein dekorativ: leeres alt entfernt das Bild aus dem Accessibility-Tree -->
+    <img src="data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='760' height='4'%3E%3Crect width='760' height='4' fill='%23d1d5db'/%3E%3C/svg%3E" alt="" style="width:100%;height:4px;display:block;margin-top:24px;">
+
+    <h2>Was droht bei Verstößen?</h2>
+    <p>
+      Die Marktüberwachung kann Nachbesserung verlangen oder das Angebot untersagen.
+      Zusätzlich sind Bußgelder bis zu 100.000 € möglich. Als technischer Maßstab für
+      Websites gilt in der Praxis die EN 301 549, die auf WCAG 2.1 Stufe AA verweist.
+    </p>
+
+    <h2 id="faq">FAQ</h2>
+    <div class="faq">
+      <h3>
+        <button type="button" aria-expanded="false" aria-controls="antwort-1">
+          Gilt das BFSG auch für B2B-Angebote?
+          <span class="pfeil" aria-hidden="true">▾</span>
+        </button>
+      </h3>
+      <div class="antwort" id="antwort-1" hidden>
+        Nein. Das Gesetz zielt auf Angebote für Verbraucherinnen und Verbraucher (B2C).
+      </div>
+
+      <h3>
+        <button type="button" aria-expanded="false" aria-controls="antwort-2">
+          Reicht ein Overlay-Tool?
+          <span class="pfeil" aria-hidden="true">▾</span>
+        </button>
+      </h3>
+      <div class="antwort" id="antwort-2" hidden>
+        Nein. Overlays beheben keine Fehler im Code; Struktur, Semantik und Kontraste müssen stimmen.
+      </div>
+    </div>
+
+    <h2 id="checkliste-titel">Checkliste anfordern</h2>
+    <form aria-labelledby="checkliste-titel" novalidate>
+      <label for="mail">E-Mail-Adresse <span aria-hidden="true">*</span></label>
+      <p class="hinweis" id="mail-hinweis">Pflichtfeld. Wir senden Ihnen die Checkliste als PDF.</p>
+      <input id="mail" name="mail" type="email" autocomplete="email" required
+             aria-describedby="mail-hinweis mail-fehler">
+      <p class="fehlertext" id="mail-fehler"></p>
+      <button class="senden" type="submit">Checkliste anfordern</button>
+      <div class="status" role="status"></div>
+    </form>
+  </main>
+
+  <footer>
+    <ul>
+      <li class="klein">© 2026 Demo</li>
+      <li><a href="#">Impressum</a></li>
+      <li><a href="#">Datenschutz</a></li>
+    </ul>
+  </footer>
+
+  <script>
+    // FAQ: Zustand über aria-expanded + hidden
+    document.querySelectorAll('.faq button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var offen = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!offen));
+        document.getElementById(btn.getAttribute('aria-controls')).hidden = offen;
+      });
+    });
+
+    // Formular: Fehler per aria-invalid + Text, Erfolg per Live-Region
+    var form = document.querySelector('form');
+    var feld = document.getElementById('mail');
+    var fehler = document.getElementById('mail-fehler');
+    var status = document.querySelector('.status');
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      status.textContent = '';
+      if (!feld.value.includes('@')) {
+        feld.setAttribute('aria-invalid', 'true');
+        fehler.textContent = 'Fehler: Bitte geben Sie eine gültige E-Mail-Adresse ein, z. B. name@beispiel.de.';
+        feld.focus();
+        return;
+      }
+      feld.removeAttribute('aria-invalid');
+      fehler.textContent = '';
+      status.textContent = 'Danke! Die Checkliste ist unterwegs.';
+    });
+  </script>
+</body>
+</html>
